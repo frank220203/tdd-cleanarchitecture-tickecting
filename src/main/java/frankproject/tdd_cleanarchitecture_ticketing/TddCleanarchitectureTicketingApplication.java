@@ -1,13 +1,13 @@
-package frankproject.tdd_cleanarchitecture_tickecting;
+package frankproject.tdd_cleanarchitecture_ticketing;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TddCleanarchitectureTickectingApplication {
+public class TddCleanarchitectureTicketingApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TddCleanarchitectureTickectingApplication.class, args);
+		SpringApplication.run(TddCleanarchitectureTicketingApplication.class, args);
 	}
 
 }

@@ -1,3 +1,14 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
+//2024-07-04
+//Jar파일명에 날짜 14자리 추가
+tasks.named<BootJar>("bootJar"){
+	val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYYMMddHHmmss"))
+	archiveFileName.set("tdd-cleanarchitecture-tickecting-${version}-$currentDateTime.jar")
+}
+
 plugins {
 	java
 	id("org.springframework.boot") version "3.3.1"
@@ -5,7 +16,7 @@ plugins {
 }
 
 group = "frankproject"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 
 java {
 	toolchain {
