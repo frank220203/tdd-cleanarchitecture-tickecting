@@ -1,4 +1,4 @@
-package frankproject.tdd_cleanarchitecture_ticketing.controller;
+package frankproject.tdd_cleanarchitecture_ticketing.adapter.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
