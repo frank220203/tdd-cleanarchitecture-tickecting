@@ -1,1 +1,1 @@
-rootProject.name = "tdd-cleanarchitecture-tickecting"
+rootProject.name = "tdd-cleanarchitecture-ticketing"
