@@ -6,7 +6,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 //Jar파일명에 날짜 14자리 추가
 tasks.named<BootJar>("bootJar"){
 	val currentDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYYMMddHHmmss"))
-	archiveFileName.set("tdd-cleanarchitecture-tickecting-${version}-$currentDateTime.jar")
+	archiveFileName.set("tdd-cleanarchitecture-ticketing-${version}-$currentDateTime.jar")
 }
 
 plugins {
