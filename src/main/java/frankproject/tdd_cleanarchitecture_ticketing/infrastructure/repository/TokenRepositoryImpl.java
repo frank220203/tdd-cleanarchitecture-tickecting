@@ -2,9 +2,7 @@ package frankproject.tdd_cleanarchitecture_ticketing.infrastructure.repository;
 
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Token;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.repository.TokenRepository;
-import jakarta.persistence.LockModeType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;
 
@@ -28,13 +26,12 @@ public class TokenRepositoryImpl implements TokenRepository {
     }
 
     @Override
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     public Token save(Token newToken) {
         return tokenJpaRepository.save(newToken);
     }
 
     @Override
-    public Optional<Token> findById(long tokenId) {
+    public Optional<Token> findByTokenId(long tokenId) {
         return tokenJpaRepository.findById(tokenId);
     }
 

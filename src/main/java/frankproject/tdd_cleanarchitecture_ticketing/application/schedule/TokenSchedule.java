@@ -1,4 +1,4 @@
-package frankproject.tdd_cleanarchitecture_ticketing.infrastructure.schedule;
+package frankproject.tdd_cleanarchitecture_ticketing.application.schedule;
 
 import frankproject.tdd_cleanarchitecture_ticketing.application.usecase.TokenUsecase;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ public class TokenSchedule {
     @Scheduled(fixedDelay = 10)
     public void manageTokens(){
 
-        int size = 20;
+        int size = 30000;
         tokenUsecase.manageTokens(size);
     }
 

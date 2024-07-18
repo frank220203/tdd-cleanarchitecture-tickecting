@@ -1,52 +1,42 @@
 package frankproject.tdd_cleanarchitecture_ticketing.adapter.controller;
 
-import org.springframework.http.HttpStatus;
+import frankproject.tdd_cleanarchitecture_ticketing.adapter.request.TokenRequest;
+import frankproject.tdd_cleanarchitecture_ticketing.application.dto.TokenDTO;
+import frankproject.tdd_cleanarchitecture_ticketing.application.usecase.TokenUsecase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/tokens")
+@Tag(name = "대기열 토큰 Controller", description = "토큰 발급 API, 대기열 조회 API")
 public class TokenController {
 
-    Map<String, Object> response = new HashMap<>();
+    private final TokenUsecase tokenUsecase;
 
-    @PostMapping("/token")
-    public ResponseEntity<?> generateToken(@RequestBody Map<String, Object> request) {
+    @Autowired
+    public TokenController(TokenUsecase tokenUsecase) {
+        this.tokenUsecase = tokenUsecase;
+    }
 
-        int customerId = (int) request.get("customerId");
-        int concertId = (int) request.get("concertId");
+    @Operation(summary = "토큰 발급/콘서트 대기열 참가")
+    @PostMapping("/generate")
+    public ResponseEntity<TokenDTO> generateNewToken(@RequestBody TokenRequest request) {
+        TokenDTO tokenDTO = tokenUsecase.generateNewToken(request.getCustomerId(), request.getConcertId());
+        return ResponseEntity.ok(tokenDTO);
+    }
 
-        // Validate user ID (for simplicity, assume any non-zero integer is valid)
-        if (customerId <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Invalid user ID");
-        }
-
-
-        // Validate concert ID (for simplicity, assume any non-zero integer is valid)
-        if (concertId <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Invalid concert ID");
-        }
-
-        // Check if a token already exists for this user
-        if (customerId == 2) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Token already exists for this user");
-        }
-
-        // Generate token
-        LocalDateTime now = LocalDateTime.now();
-        response.put("tokenId", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
-
-        // Prepare response
-        return ResponseEntity.ok(response);
+    @Operation(summary = "본인 콘서트 대기열 조회")
+    @GetMapping("/check")
+    public ResponseEntity<TokenDTO> checkToken(@RequestParam("customerId") long customerId, @RequestParam("concertId") long concertId) {
+        TokenDTO tokenDTO = tokenUsecase.checkToken(customerId, concertId);
+        return ResponseEntity.ok(tokenDTO);
     }
 }
