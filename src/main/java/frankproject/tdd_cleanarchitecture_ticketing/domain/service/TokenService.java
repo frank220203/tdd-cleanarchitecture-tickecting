@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class TokenService {
 
     private final TokenRepository tokenRepository;
@@ -23,6 +22,7 @@ public class TokenService {
     }
 
     // 콘서트 대기열 참가
+    @Transactional
     public Token generateNewToken(long customerId, long concertId) {
         Token targetToken = findByCustomerId(customerId, concertId);
 
@@ -46,6 +46,7 @@ public class TokenService {
     }
 
     // 본인 콘서트 대기열 조회
+    @Transactional
     public Token checkToken(long customerId, long concertId) {
         Token targetToken = findByCustomerId(customerId, concertId);
 
