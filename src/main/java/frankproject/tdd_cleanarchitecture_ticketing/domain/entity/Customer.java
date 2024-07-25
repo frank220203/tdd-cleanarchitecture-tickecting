@@ -1,5 +1,7 @@
 package frankproject.tdd_cleanarchitecture_ticketing.domain.entity;
 
+import frankproject.tdd_cleanarchitecture_ticketing.domain.common.CoreException;
+import frankproject.tdd_cleanarchitecture_ticketing.domain.common.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -47,4 +49,13 @@ public class Customer {
         this.point += amount;
     }
 
+    // 포인트 차감
+    public void deductPoint(long amount) {
+        // 포인트가 부족한 경우 예외를 발생시킵니다
+        if (amount > this.point) {
+            throw new CoreException(ErrorCode.INSUFFICIENT_POINTS);
+        }
+
+        this.point -= amount;
+    }
 }
