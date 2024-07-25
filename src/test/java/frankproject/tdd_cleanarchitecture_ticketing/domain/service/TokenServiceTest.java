@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -36,8 +37,8 @@ public class TokenServiceTest {
     }
 
     @Test
-    @DisplayName("토큰 생성 테스트")
-    public void issueToken_generate() {
+    @DisplayName("콘서트 대기열 참가 테스트")
+    public void generateNewToken() {
         // given
         long customerId = 1L;
         long concertId = 1L;
@@ -46,23 +47,21 @@ public class TokenServiceTest {
         Token givenToken = new Token(1L, concertId, customerId, nextWaitNumber, "PENDING", now, null);
 
         // given Mock
-        when(tokenRepository.findByCustomerId(customerId, concertId)).thenReturn(null);
         when(tokenRepository.findMaxPositionByConcertId(concertId)).thenReturn(expectedWaitNumber);
         when(tokenRepository.save(any(Token.class))).thenReturn(givenToken);
 
         // when
-        Token actualToken = tokenService.issueToken(customerId, concertId);
+        Token actualToken = tokenService.generateNewToken(customerId, concertId);
 
         // then
-        verify(tokenRepository, times(1)).findByCustomerId(customerId, concertId);
         verify(tokenRepository, times(1)).findMaxPositionByConcertId(concertId);
         verify(tokenRepository, times(1)).save(any(Token.class));
         assertEquals(givenToken, actualToken);
     }
 
     @Test
-    @DisplayName("토큰 폴링 테스트")
-    public void issueToken_polling() {
+    @DisplayName("본인 콘서트 대기열 조회 테스트")
+    public void checkToken() {
         // given
         long customerId = 2L;
         long concertId = 1L;
@@ -74,7 +73,7 @@ public class TokenServiceTest {
         when(tokenRepository.findActiveTokensByConcertId(concertId)).thenReturn(List.of(lastActiveToken));
 
         // when
-        Token actualToken = tokenService.issueToken(customerId, concertId);
+        Token actualToken = tokenService.checkToken(customerId, concertId);
 
         // then
         verify(tokenRepository, never()).findMaxPositionByConcertId(concertId);
@@ -85,25 +84,32 @@ public class TokenServiceTest {
         assertEquals(1, actualToken.getWaitNumber());
         assertEquals(givenToken.getStatus(), actualToken.getStatus());
         assertEquals(givenToken.getCreatedAt(), actualToken.getCreatedAt());
-        assertEquals(null, actualToken.getUpdatedAt());
+        assertNull(actualToken.getUpdatedAt());
     }
 
+
     @Test
-    @DisplayName("토큰 ID로 토큰 찾기 테스트")
-    public void findById() {
+    @DisplayName("콘서트 별 활성화 토큰 조회 테스트")
+    public void findActiveTokensByConcertId() {
+
         // given
-        long tokenId = 1L;
-        Optional<Token> givenToken = Optional.of(new Token(tokenId, 1L, 1L, 1, "ACTIVE", now, now));
+        long concertId = 1L;
+        Token activeToken1 = new Token(1L, concertId, 1L, 1, "ACTIVE", now.minusMinutes(12), now);
+        Token activeToken2 = new Token(2L, concertId, 2L, 2, "ACTIVE", now.minusMinutes(11), now);
+        Token activeToken3 = new Token(3L, concertId, 3L, 3, "ACTIVE", now.minusMinutes(10), now);
 
         // given Mock
-        when(tokenRepository.findById(tokenId)).thenReturn(givenToken);
+        when(tokenRepository.findActiveTokensByConcertId(concertId)).thenReturn(List.of(activeToken1, activeToken2, activeToken3));
 
         // when
-        Optional<Token> actualToken = tokenService.findById(tokenId);
+        List<Token> actualToken = tokenService.findActiveTokensByConcertId(concertId);
 
         // then
-        verify(tokenRepository, times(1)).findById(tokenId);
-        assertEquals(givenToken, actualToken);
+        verify(tokenRepository, times(1)).findActiveTokensByConcertId(concertId);
+        assertEquals(3, actualToken.size());
+        assertEquals("ACTIVE", actualToken.get(0).getStatus());
+        assertEquals("ACTIVE", actualToken.get(1).getStatus());
+        assertEquals("ACTIVE", actualToken.get(2).getStatus());
     }
 
     @Test

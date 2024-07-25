@@ -11,7 +11,7 @@ public interface TokenRepository {
 
     Token save(Token newToken);
 
-    Optional<Token> findById(long tokenId);
+    Optional<Token> findByTokenId(long tokenId);
 
     Token findByCustomerId(long customerId, long concertId);
 
