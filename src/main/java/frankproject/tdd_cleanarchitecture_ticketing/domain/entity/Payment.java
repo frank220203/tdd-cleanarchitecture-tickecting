@@ -1,7 +1,5 @@
 package frankproject.tdd_cleanarchitecture_ticketing.domain.entity;
 
-import frankproject.tdd_cleanarchitecture_ticketing.domain.common.CoreException;
-import frankproject.tdd_cleanarchitecture_ticketing.domain.common.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,30 +9,34 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "customer")
+@Table(name = "payment")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer {
+public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "payment_id")
+    private long paymentId;
+
     @Column(name = "customer_id")
     private long customerId;
 
-    @Column(name = "customer_name")
-    private String customerName;
+    @Column(name = "reservation_id")
+    private long reservationId;
 
-    @Column(name = "point", nullable = false)
-    @ColumnDefault("0")
-    private long point;
+    @Column(name = "amount")
+    private long amount;
+
+    @Column(name = "payment_time")
+    private LocalDateTime paymentTime = LocalDateTime.now();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -44,18 +46,10 @@ public class Customer {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 포인트 충전
-    public void chargePoint(long amount) {
-        this.point += amount;
+    public Payment(long customerId, long reservationId, long amount) {
+        this.customerId = customerId;
+        this.reservationId = reservationId;
+        this.amount = amount;
     }
 
-    // 포인트 차감
-    public void deductPoint(long amount) {
-        // 포인트가 부족한 경우 예외를 발생시킵니다
-        if (amount > this.point) {
-            throw new CoreException(ErrorCode.INSUFFICIENT_POINTS);
-        }
-
-        this.point -= amount;
-    }
 }

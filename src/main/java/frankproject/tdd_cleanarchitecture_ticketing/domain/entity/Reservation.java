@@ -1,7 +1,5 @@
 package frankproject.tdd_cleanarchitecture_ticketing.domain.entity;
 
-import frankproject.tdd_cleanarchitecture_ticketing.domain.common.CoreException;
-import frankproject.tdd_cleanarchitecture_ticketing.domain.common.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,30 +9,37 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "customer")
+@Table(name = "reservation")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer {
+public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "reservation_id")
+    private long reservationId;
+
     @Column(name = "customer_id")
     private long customerId;
 
-    @Column(name = "customer_name")
-    private String customerName;
+    @Column(name = "seat_id")
+    private long seatId;
 
-    @Column(name = "point", nullable = false)
-    @ColumnDefault("0")
-    private long point;
+    @Column(name = "concert_schedule_id")
+    private long concertScheduleId;
+
+    @Column(name = "reservation_time")
+    private LocalDateTime reservationTime = LocalDateTime.now();
+
+    @Column(name = "status")
+    private String status = "PENDING";
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -44,18 +49,20 @@ public class Customer {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // 포인트 충전
-    public void chargePoint(long amount) {
-        this.point += amount;
+    public Reservation(long customerId, long seatId, long concertScheduleId) {
+        this.customerId = customerId;
+        this.seatId = seatId;
+        this.concertScheduleId = concertScheduleId;
     }
 
-    // 포인트 차감
-    public void deductPoint(long amount) {
-        // 포인트가 부족한 경우 예외를 발생시킵니다
-        if (amount > this.point) {
-            throw new CoreException(ErrorCode.INSUFFICIENT_POINTS);
-        }
-
-        this.point -= amount;
+    // 예약 취소
+    public void cancel() {
+        this.status = "CANCELLED";
     }
+
+    // 결제 완료
+    public void completed() {
+        this.status = "COMPLETED";
+    }
+
 }

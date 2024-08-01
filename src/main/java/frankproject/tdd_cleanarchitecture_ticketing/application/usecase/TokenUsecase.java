@@ -9,8 +9,6 @@ import frankproject.tdd_cleanarchitecture_ticketing.domain.service.CustomerServi
 import frankproject.tdd_cleanarchitecture_ticketing.domain.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -43,7 +41,6 @@ public class TokenUsecase {
     }
 
     // 콘서트 대기열 참가
-    @Transactional(isolation = Isolation.SERIALIZABLE)
     public TokenDTO generateNewToken(long customerId, long concertId) {
 
         Customer customer = customerService.findById(customerId);
@@ -53,7 +50,6 @@ public class TokenUsecase {
     }
 
     // 본인 콘서트 대기열 조회
-    @Transactional
     public TokenDTO checkToken(long customerId, long concertId) {
 
         Customer customer = customerService.findById(customerId);

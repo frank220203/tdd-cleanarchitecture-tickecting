@@ -1,5 +1,11 @@
 package frankproject.tdd_cleanarchitecture_ticketing.adapter.controller;
 
+import frankproject.tdd_cleanarchitecture_ticketing.adapter.request.ReservationRequest;
+import frankproject.tdd_cleanarchitecture_ticketing.application.dto.ReservationDTO;
+import frankproject.tdd_cleanarchitecture_ticketing.application.usecase.ReservationUsecase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,48 +21,30 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "예약 Controller", description = "좌석 예약 요청 API, 결제 API")
 public class ReservationController {
 
     Map<String, Object> response = new HashMap<>();
+    private final ReservationUsecase reservationUsecase;
 
+    public ReservationController(ReservationUsecase reservationUsecase) {
+        this.reservationUsecase = reservationUsecase;
+    }
+
+    /**
+     * 좌석 예약 요청 API
+     *
+     * @param reservationRequest 예약 요청 정보 (seatId, customerId)
+     * @return 예약 정보를 포함한 응답
+     */
+    @Operation(
+            summary = "좌석 예약 요청",
+            security = {@SecurityRequirement(name = "headerAuth")}
+    )
     @PostMapping("/reservation")
-    public ResponseEntity<?> reserveSeat(@RequestHeader HttpHeaders headers, @RequestBody Map<String, Object> request) {
-
-        String tokenId = headers.getFirst(org.springframework.http.HttpHeaders.AUTHORIZATION);
-        int customerId = (int) request.get("customerId");
-        int concertScheduleId = (int) request.get("concertScheduleId");
-        int seatId = (int) request.get("seatId");
-        boolean isFinallyReserved = (boolean) request.get("isFinallyReserved");
-        int temporaryAssigneeId = (int) request.get("temporaryAssigneeId");
-
-        // Validate request data
-        assert tokenId != null;
-        if (!tokenId.equals("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid Token");
-        }
-
-        if (concertScheduleId != 1) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Concert not found");
-        } else if(seatId != 1) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Seat not found");
-        } else if(isFinallyReserved || temporaryAssigneeId > 0) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid Seat");
-        }
-
-        response.put("concertScheduleId", 1);
-        response.put("concertDate", "2024-07-14");
-        response.put("seatId", 1);
-        response.put("seatNumber", 1);
-        response.put("isFinallyReserved", true);
-        response.put("temporaryAssigneeId", customerId);
-        response.put("price", 50000);
-        response.put("reservationId", 1);
-
-        // 5분 더하기
-        LocalDateTime plusFiveMinutes = LocalDateTime.now().plusMinutes(5);
-        response.put("temporaryAssignExpiresAt", plusFiveMinutes);
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ReservationDTO> reserveSeat(@RequestBody ReservationRequest reservationRequest) {
+        ReservationDTO reservationDTO = reservationUsecase.createReservationWithOptimistic(reservationRequest.getSeatId(), reservationRequest.getCustomerId());
+        return ResponseEntity.ok(reservationDTO);
     }
 
     @PostMapping("/reservation/pay")
