@@ -1,5 +1,6 @@
 package frankproject.tdd_cleanarchitecture_ticketing.application.usecase;
 
+import frankproject.tdd_cleanarchitecture_ticketing.application.dto.RedisTokenDTO;
 import frankproject.tdd_cleanarchitecture_ticketing.application.dto.TokenDTO;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Concert;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Customer;
@@ -95,6 +96,17 @@ public class TokenUsecaseTest {
     }
 
     @Test
+    @DisplayName("레디스 대기열 토큰 발급 테스트")
+    public void generateTokenWithRedis(){
+        LocalDateTime createTime = LocalDateTime.now().minusHours(3);
+        LocalDateTime updateTime = LocalDateTime.now().minusHours(1);
+        customerService.save(new Customer(1, "홍길동", 0, createTime, updateTime));
+        RedisTokenDTO generateResult = tokenUsecase.generateNewTokenWithRedis(1);
+        assertNotNull(generateResult);
+        assertEquals(1, generateResult.getCustomerId());
+    }
+
+    @Test
     public void checkToken() {
         // given
         long customerId = 1L;
@@ -111,5 +123,61 @@ public class TokenUsecaseTest {
         assertEquals(generateToken.getCustomerId(), result.getCustomerId());
         assertEquals(generateToken.getConcertId(), result.getConcertId());
         assertEquals(generateToken.getStatus(), result.getStatus());
+    }
+
+    @Test
+    @DisplayName("레디스 대기열 조회 테스트")
+    public void checkTokenWithRedis() {
+        LocalDateTime createTime = LocalDateTime.now().minusHours(3);
+        LocalDateTime updateTime = LocalDateTime.now().minusHours(1);
+        customerService.save(new Customer(1, "홍길동", 0, createTime, updateTime));
+        RedisTokenDTO generateResult = tokenUsecase.checkTokenWithRedis(1);
+        assertNotNull(generateResult);
+        assertEquals(1, generateResult.getCustomerId());
+        System.out.println("고객 ID : " + generateResult.getCustomerId() + " 토큰 ID : " + generateResult.getTokenID() + " 대기순서 : " + generateResult.getRank());
+    }
+
+    @Test
+    @DisplayName("레디스 토큰 활성화/만료 테스트")
+    public void manageTokens() throws InterruptedException {
+        LocalDateTime createTime = LocalDateTime.now().minusHours(3);
+        LocalDateTime updateTime = LocalDateTime.now().minusHours(1);
+        customerService.save(new Customer(1, "홍길동", 0, createTime, updateTime));
+        customerService.save(new Customer(2, "고양이", 0, createTime, updateTime));
+        RedisTokenDTO generateResult = tokenUsecase.generateNewTokenWithRedis(1);
+        RedisTokenDTO generateResult2 = tokenUsecase.generateNewTokenWithRedis(2);
+        System.out.println("=========== 생성 완료 =================");
+        RedisTokenDTO result = tokenUsecase.checkTokenWithRedis(1);
+        System.out.println("고객 1 ID : " + result.getCustomerId() + " 토큰 ID : " + result.getTokenID() + " 대기순서 : " + result.getRank());
+        RedisTokenDTO result2 = tokenUsecase.checkTokenWithRedis(2);
+        System.out.println("고객 2 ID : " + result2.getCustomerId() + " 토큰 ID : " + result2.getTokenID() + " 대기순서 : " + result2.getRank());
+        System.out.println("=========== 조회 완료 =================");
+        assertNotNull(result);
+        assertNotNull(result2);
+        tokenUsecase.manageTokensWithRedis(1);
+        Thread.sleep(60000);
+        tokenUsecase.manageTokensWithRedis(1);
+    }
+
+    @Test
+    @DisplayName("레디스 토큰 활성화 여부 테스트")
+    public void isActiveTokenWithRedis() {
+        LocalDateTime createTime = LocalDateTime.now().minusHours(3);
+        LocalDateTime updateTime = LocalDateTime.now().minusHours(1);
+        customerService.save(new Customer(1, "홍길동", 0, createTime, updateTime));
+        customerService.save(new Customer(2, "고양이", 0, createTime, updateTime));
+        RedisTokenDTO generateResult = tokenUsecase.generateNewTokenWithRedis(1);
+        RedisTokenDTO generateResult2 = tokenUsecase.generateNewTokenWithRedis(2);
+        System.out.println("=========== 생성 완료 =================");
+        RedisTokenDTO result = tokenUsecase.checkTokenWithRedis(1);
+        System.out.println("고객 1 ID : " + result.getCustomerId() + " 토큰 ID : " + result.getTokenID() + " 대기순서 : " + result.getRank());
+        RedisTokenDTO result2 = tokenUsecase.checkTokenWithRedis(2);
+        System.out.println("고객 2 ID : " + result2.getCustomerId() + " 토큰 ID : " + result2.getTokenID() + " 대기순서 : " + result2.getRank());
+        System.out.println("=========== 조회 완료 =================");
+        assertNotNull(result);
+        assertNotNull(result2);
+        tokenUsecase.manageTokensWithRedis(1);
+        System.out.println("활성화 여부 : " + tokenUsecase.isActiveTokenWithRedis(result.getTokenID()));
+        System.out.println("활성화 여부 : " + tokenUsecase.isActiveTokenWithRedis(result2.getTokenID()));
     }
 }
