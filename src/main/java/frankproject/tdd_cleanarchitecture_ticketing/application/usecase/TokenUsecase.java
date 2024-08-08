@@ -1,8 +1,10 @@
 package frankproject.tdd_cleanarchitecture_ticketing.application.usecase;
 
+import frankproject.tdd_cleanarchitecture_ticketing.application.dto.RedisTokenDTO;
 import frankproject.tdd_cleanarchitecture_ticketing.application.dto.TokenDTO;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Concert;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Customer;
+import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.RedisToken;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Token;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.service.ConcertService;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.service.CustomerService;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TokenUsecase {
@@ -40,6 +43,14 @@ public class TokenUsecase {
         );
     }
 
+    private RedisTokenDTO convertToRedisTokenDTO(RedisToken token) {
+        return new RedisTokenDTO(
+                token.getCustomerId(),
+                token.getTokenID(),
+                token.getRank()
+        );
+    }
+
     // 콘서트 대기열 참가
     public TokenDTO generateNewToken(long customerId, long concertId) {
 
@@ -47,6 +58,11 @@ public class TokenUsecase {
         Concert concert = concertService.findById(concertId);
 
         return convertToTokenDTO(tokenService.generateNewToken(customer.getCustomerId(), concert.getConcertId()));
+    }
+
+    public RedisTokenDTO generateNewTokenWithRedis(long customerId) {
+        Customer customer = customerService.findById(customerId);
+        return convertToRedisTokenDTO(tokenService.generateNewTokenWithRedis(customer.getCustomerId()));
     }
 
     // 본인 콘서트 대기열 조회
@@ -58,9 +74,17 @@ public class TokenUsecase {
         return  convertToTokenDTO(tokenService.checkToken(customer.getCustomerId(), concert.getConcertId()));
     }
 
+    public RedisTokenDTO checkTokenWithRedis(long customerId) {
+        Customer customer = customerService.findById(customerId);
+        return convertToRedisTokenDTO(tokenService.checkTokenWithRedis(customer.getCustomerId()));
+    }
+
     // 토큰 활성화 여부 조회
     public boolean isActiveToken(long tokenId){
         return tokenService.isActiveToken(tokenId);
+    }
+    public boolean isActiveTokenWithRedis(UUID tokenId){
+        return tokenService.isActiveTokenWithRedis(tokenId);
     }
 
     // 스케줄러가 자동으로 토큰 상태 관리
@@ -72,5 +96,11 @@ public class TokenUsecase {
             tokenService.expireToken(concert.getConcertId());
             tokenService.activeToken(concert.getConcertId(), size);
         }
+    }
+
+    public void manageTokensWithRedis(int size) {
+
+        tokenService.expireTokenWithRedis();
+        tokenService.activeTokenWithRedis(size);
     }
 }
