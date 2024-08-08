@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "seat")
+// 인덱스 생성
+@Table(name = "seat"
+        ,indexes = {
+        @Index(name = "idx_concert_schedule_id", columnList = "concert_schedule_id")
+}
+)
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

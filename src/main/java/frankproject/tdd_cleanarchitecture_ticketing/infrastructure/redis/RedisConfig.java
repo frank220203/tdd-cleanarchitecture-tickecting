@@ -1,4 +1,4 @@
-package frankproject.tdd_cleanarchitecture_ticketing.infrastructure.config;
+package frankproject.tdd_cleanarchitecture_ticketing.infrastructure.redis;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
