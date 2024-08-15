@@ -1,4 +1,4 @@
-package frankproject.tdd_cleanarchitecture_ticketing.domain.entity;
+package frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Payment;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
