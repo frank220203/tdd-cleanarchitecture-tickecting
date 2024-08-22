@@ -3,15 +3,18 @@ package frankproject.tdd_cleanarchitecture_ticketing.application.usecase;
 import frankproject.tdd_cleanarchitecture_ticketing.application.dto.PaymentDTO;
 import frankproject.tdd_cleanarchitecture_ticketing.application.dto.ReservationDTO;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Customer;
-import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Payment;
+import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Payment.Payment;
+import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Payment.PaymentOutbox;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Reservation;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Seat;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Token;
+import frankproject.tdd_cleanarchitecture_ticketing.domain.repository.payment.PaymentOutboxRepository;
+import frankproject.tdd_cleanarchitecture_ticketing.domain.repository.payment.PaymentRepository;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.service.CustomerService;
-import frankproject.tdd_cleanarchitecture_ticketing.domain.service.PaymentService;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.service.ReservationService;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.service.SeatService;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.service.TokenService;
+import frankproject.tdd_cleanarchitecture_ticketing.domain.service.payment.PaymentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,6 +52,12 @@ public class ReservationUsecaseTest {
 
     @Autowired
     private ReservationUsecase reservationUsecase;
+
+    @Autowired
+    private PaymentOutboxRepository paymentOutboxRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
@@ -257,5 +266,32 @@ public class ReservationUsecaseTest {
         assertEquals(seat.getConcertScheduleId(), result.getConcertScheduleId());
         assertNotNull(result.getReservationTime()); // reservationTime이 null이 아닌지 확인
         assertEquals("PENDING", result.getStatus()); // 예약 상태가 "PENDING"인지 확인
+    }
+
+    @Test
+    @DisplayName("카프카 재수행 스케줄러 테스트")
+    public void reProduceKafkaTest() throws InterruptedException {
+
+        PaymentOutbox paymentOutbox = new PaymentOutbox(1, "결제완료", "INIT", 1);
+        PaymentOutbox paymentOutbox2 = new PaymentOutbox(2, "결제완료", "INIT", 2);
+        PaymentOutbox paymentOutbox3 = new PaymentOutbox(3, "결제완료", "INIT", 3);
+        PaymentOutbox paymentOutbox4 = new PaymentOutbox(4, "결제완료", "INIT", 4);
+        PaymentOutbox paymentOutbox5 = new PaymentOutbox(5, "결제완료", "INIT", 5);
+        Payment payment = new Payment(1, 1, 1, 3000, LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now());
+        Payment payment2 = new Payment(2, 1, 1, 3000, LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now());
+        Payment payment3 = new Payment(3, 1, 1, 3000, LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now());
+        Payment payment4 = new Payment(4, 1, 1, 3000, LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now());
+        Payment payment5 = new Payment(5, 1, 1, 3000, LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now());
+        paymentOutboxRepository.save(paymentOutbox);
+        paymentOutboxRepository.save(paymentOutbox2);
+        paymentOutboxRepository.save(paymentOutbox3);
+        paymentOutboxRepository.save(paymentOutbox4);
+        paymentOutboxRepository.save(paymentOutbox5);
+        paymentRepository.save(payment);
+        paymentRepository.save(payment2);
+        paymentRepository.save(payment3);
+        paymentRepository.save(payment4);
+        paymentRepository.save(payment5);
+        Thread.sleep(60000);
     }
 }

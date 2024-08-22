@@ -1,9 +1,9 @@
-package frankproject.tdd_cleanarchitecture_ticketing.domain.service;
+package frankproject.tdd_cleanarchitecture_ticketing.domain.service.payment;
 
 import frankproject.tdd_cleanarchitecture_ticketing.domain.common.CoreException;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.common.ErrorCode;
-import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Payment;
-import frankproject.tdd_cleanarchitecture_ticketing.domain.repository.PaymentRepository;
+import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Payment.Payment;
+import frankproject.tdd_cleanarchitecture_ticketing.domain.repository.payment.PaymentRepository;
 import org.springframework.stereotype.Service;
 
 @Service

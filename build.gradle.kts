@@ -49,6 +49,13 @@ dependencies {
 
 	// Redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+	// kafka
+	implementation ("org.springframework.kafka:spring-kafka")
+
+	// Jackson
+	implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+	implementation ("com.fasterxml.jackson.core:jackson-databind")
 }
 
 tasks.withType<Test> {

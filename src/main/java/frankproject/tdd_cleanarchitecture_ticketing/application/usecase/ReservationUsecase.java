@@ -5,11 +5,11 @@ import frankproject.tdd_cleanarchitecture_ticketing.application.dto.ReservationD
 import frankproject.tdd_cleanarchitecture_ticketing.domain.common.CoreException;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.common.ErrorCode;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Customer;
-import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Payment;
+import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Payment.Payment;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Reservation;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.entity.Seat;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.service.CustomerService;
-import frankproject.tdd_cleanarchitecture_ticketing.domain.service.PaymentService;
+import frankproject.tdd_cleanarchitecture_ticketing.domain.service.payment.PaymentService;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.service.ReservationService;
 import frankproject.tdd_cleanarchitecture_ticketing.domain.service.SeatService;
 import lombok.extern.slf4j.Slf4j;
